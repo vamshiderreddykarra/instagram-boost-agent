@@ -5,7 +5,16 @@ colorFrom: purple
 colorTo: yellow
 sdk: docker
 app_port: 7860
-pinned: false
+pinned: true
+tags:
+  - instagram
+  - ai
+  - hashtags
+  - social-media
+  - marketing
+  - groq
+  - fastapi
+short_description: AI Instagram hashtag generator & boost tool
 ---
 
 # Instagram AI Boost Agent
