@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram AI Boost Agent</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
+    <!--
+        Google AdSense: Uncomment the line below and replace ca-pub-XXXXXXXXXXXXXXXX
+        with your real publisher ID once your AdSense account is approved.
+    -->
+    <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script> -->
+</head>
+<body class="min-h-screen">
+    <!-- Header -->
+    <header class="border-b border-white/5">
+        <div class="max-w-6xl mx-auto px-6 py-5 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl ig-gradient flex items-center justify-center text-white font-bold text-lg">B</div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight">Boost<span class="ig-gradient-text">Agent</span></h1>
+                    <p class="text-xs text-zinc-500">AI-Powered Instagram Growth</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 text-xs text-zinc-500">
+                <div class="pulse-dot bg-emerald-400"></div>
+                <span id="dayLabel">Loading...</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Sidebar Ads (desktop only, outside content area) -->
+    <div class="ad-sidebar ad-sidebar-left" id="adSidebarLeft">
+        <ins class="adsbygoogle"
+            style="display:block"
+            data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+            data-ad-slot="LEFT_AD_SLOT_ID"
+            data-ad-format="vertical"
+            data-full-width-responsive="false"></ins>
+    </div>
+    <div class="ad-sidebar ad-sidebar-right" id="adSidebarRight">
+        <ins class="adsbygoogle"
+            style="display:block"
+            data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+            data-ad-slot="RIGHT_AD_SLOT_ID"
+            data-ad-format="vertical"
+            data-full-width-responsive="false"></ins>
+    </div>
+
+    <main class="max-w-6xl mx-auto px-6 py-8">
+        <!-- Input Section -->
+        <section class="glass-card p-8 mb-8">
+            <h2 class="text-2xl font-bold mb-1">Analyze & Boost Your Post</h2>
+            <p class="text-zinc-400 text-sm mb-6">Enter an Instagram post URL, @username, or manually describe your content</p>
+
+            <form id="analyzeForm" class="space-y-6">
+                <!-- URL / Username Input -->
+                <div>
+                    <label class="block text-sm font-medium text-zinc-300 mb-2">Post URL or @Username</label>
+                    <div class="flex gap-3">
+                        <input type="text" name="query" id="queryInput"
+                            class="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-zinc-500 text-sm"
+                            placeholder="https://instagram.com/p/... or @username">
+                        <button type="submit" id="submitBtn"
+                            class="ig-gradient px-8 py-3 rounded-xl font-semibold text-white text-sm hover:opacity-90 transition-opacity whitespace-nowrap">
+                            Analyze
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Divider -->
+                <div class="flex items-center gap-4">
+                    <div class="flex-1 h-px bg-white/10"></div>
+                    <span class="text-xs text-zinc-500 font-medium">OR USE MANUAL INPUT</span>
+                    <div class="flex-1 h-px bg-white/10"></div>
+                </div>
+
+                <!-- Manual Input -->
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-zinc-300 mb-2">Caption / Description</label>
+                        <textarea name="caption" id="captionInput" rows="4"
+                            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-zinc-500 text-sm resize-none"
+                            placeholder="Paste your caption or describe your post content..."></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-zinc-300 mb-2">Image (optional)</label>
+                        <div id="dropZone" class="drop-zone h-full min-h-[120px] flex flex-col items-center justify-center gap-2 cursor-pointer p-4">
+                            <svg class="w-8 h-8 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                            <p class="text-xs text-zinc-500 text-center">Drag & drop or click to upload</p>
+                            <p id="fileName" class="text-xs text-emerald-400 hidden"></p>
+                            <input type="file" id="imageInput" name="image" accept="image/*" class="hidden">
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </section>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="hidden flex flex-col items-center justify-center py-16 gap-4">
+            <div class="loader"></div>
+            <p class="text-zinc-400 text-sm" id="loadingText">Analyzing your content...</p>
+        </div>
+
+        <!-- Error State -->
+        <div id="errorState" class="hidden glass-card p-8 text-center">
+            <div class="text-4xl mb-4">&#9888;&#65039;</div>
+            <p class="text-red-400 font-medium" id="errorMsg"></p>
+            <p class="text-zinc-500 text-sm mt-2">Try using manual input instead, or check your URL.</p>
+        </div>
+
+        <!-- Results -->
+        <div id="results" class="hidden space-y-6 fade-in">
+
+            <!-- Post Info Bar -->
+            <div id="postInfoBar" class="glass-card p-5 flex flex-wrap items-center gap-6 text-sm hidden">
+                <div class="flex items-center gap-2">
+                    <span class="text-zinc-500">User:</span>
+                    <span class="font-semibold" id="resUsername">-</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-zinc-500">Type:</span>
+                    <span class="font-semibold capitalize" id="resPostType">-</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-zinc-500">Likes:</span>
+                    <span class="font-semibold" id="resLikes">-</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-zinc-500">Comments:</span>
+                    <span class="font-semibold" id="resComments">-</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-zinc-500">Potential:</span>
+                    <span class="font-semibold" id="resPotential">-</span>
+                </div>
+            </div>
+
+            <!-- Content Analysis -->
+            <div class="glass-card p-6">
+                <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full ig-gradient inline-block"></span>
+                    Content Analysis
+                </h3>
+                <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-white/5 rounded-xl p-4">
+                        <p class="text-xs text-zinc-500 mb-1">Category</p>
+                        <p class="font-semibold capitalize" id="resCategory">-</p>
+                    </div>
+                    <div class="bg-white/5 rounded-xl p-4">
+                        <p class="text-xs text-zinc-500 mb-1">Mood</p>
+                        <p class="font-semibold capitalize" id="resMood">-</p>
+                    </div>
+                    <div class="bg-white/5 rounded-xl p-4">
+                        <p class="text-xs text-zinc-500 mb-1">Target Audience</p>
+                        <p class="font-semibold text-sm" id="resAudience">-</p>
+                    </div>
+                    <div class="bg-white/5 rounded-xl p-4">
+                        <p class="text-xs text-zinc-500 mb-1">Themes</p>
+                        <p class="font-semibold text-sm" id="resThemes">-</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hashtag Sets -->
+            <div class="glass-card p-6">
+                <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
+                    <h3 class="text-lg font-bold flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full ig-gradient inline-block"></span>
+                        Optimized Hashtags
+                    </h3>
+                    <button id="copyHashtagsBtn" onclick="copyCurrentHashtags()"
+                        class="text-xs bg-white/10 hover:bg-white/15 px-4 py-2 rounded-lg transition-colors font-medium">
+                        Copy Recommended Set
+                    </button>
+                </div>
+
+                <!-- Hashtag Tabs -->
+                <div class="flex gap-1 mb-5 border-b border-white/10 text-sm overflow-x-auto">
+                    <button class="hashtag-tab tab-active px-4 py-2.5 whitespace-nowrap" onclick="switchTab(this, 'recommended')">Recommended</button>
+                    <button class="hashtag-tab px-4 py-2.5 text-zinc-500 whitespace-nowrap" onclick="switchTab(this, 'reach')">Maximum Reach</button>
+                    <button class="hashtag-tab px-4 py-2.5 text-zinc-500 whitespace-nowrap" onclick="switchTab(this, 'niche')">Niche Targeted</button>
+                    <button class="hashtag-tab px-4 py-2.5 text-zinc-500 whitespace-nowrap" onclick="switchTab(this, 'growth')">Low Competition</button>
+                </div>
+
+                <div id="hashtagContent" class="flex flex-wrap gap-2 min-h-[48px]"></div>
+
+                <!-- Avoid Hashtags -->
+                <div id="avoidSection" class="mt-6 pt-4 border-t border-white/10 hidden">
+                    <p class="text-xs text-red-400 font-semibold mb-2">AVOID THESE HASHTAGS</p>
+                    <div id="avoidHashtags" class="flex flex-wrap gap-2"></div>
+                </div>
+            </div>
+
+            <!-- Inline Ad (between sections) -->
+            <div class="ad-inline" style="text-align:center;">
+                <ins class="adsbygoogle"
+                    style="display:block"
+                    data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+                    data-ad-slot="INLINE_AD_SLOT_ID"
+                    data-ad-format="horizontal"
+                    data-full-width-responsive="true"></ins>
+            </div>
+
+            <!-- Boost Strategy -->
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Best Times -->
+                <div class="glass-card p-6">
+                    <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full ig-gradient inline-block"></span>
+                        Best Posting Times
+                        <span class="text-xs text-zinc-500 font-normal ml-1" id="dayBadge"></span>
+                    </h3>
+                    <div id="bestTimes" class="space-y-2"></div>
+                </div>
+
+                <!-- Engagement Hooks -->
+                <div class="glass-card p-6">
+                    <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full ig-gradient inline-block"></span>
+                        Engagement Strategy
+                    </h3>
+                    <div id="engagementHooks" class="space-y-2"></div>
+                </div>
+            </div>
+
+            <!-- Caption Rewrite -->
+            <div class="glass-card p-6">
+                <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
+                    <h3 class="text-lg font-bold flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full ig-gradient inline-block"></span>
+                        Optimized Caption
+                    </h3>
+                    <button onclick="copyText('captionRewrite')"
+                        class="text-xs bg-white/10 hover:bg-white/15 px-4 py-2 rounded-lg transition-colors font-medium">
+                        Copy Caption
+                    </button>
+                </div>
+                <div id="captionRewrite" class="bg-white/5 rounded-xl p-4 text-sm leading-relaxed whitespace-pre-wrap">-</div>
+            </div>
+
+            <!-- First Comment -->
+            <div class="glass-card p-6">
+                <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
+                    <h3 class="text-lg font-bold flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full ig-gradient inline-block"></span>
+                        First Comment Suggestion
+                    </h3>
+                    <button onclick="copyText('firstComment')"
+                        class="text-xs bg-white/10 hover:bg-white/15 px-4 py-2 rounded-lg transition-colors font-medium">
+                        Copy Comment
+                    </button>
+                </div>
+                <div id="firstComment" class="bg-white/5 rounded-xl p-4 text-sm leading-relaxed">-</div>
+            </div>
+
+            <!-- Tips & Follow-Up -->
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="glass-card p-6">
+                    <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full ig-gradient inline-block"></span>
+                        Content Tips
+                    </h3>
+                    <div id="contentTips" class="space-y-2"></div>
+                </div>
+                <div class="glass-card p-6">
+                    <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full ig-gradient inline-block"></span>
+                        Follow-Up Post Ideas
+                    </h3>
+                    <div id="followUpIdeas" class="space-y-2"></div>
+                </div>
+            </div>
+
+            <!-- Community Actions -->
+            <div class="glass-card p-6">
+                <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full ig-gradient inline-block"></span>
+                    Community Actions (Do Before Posting)
+                </h3>
+                <div id="communityActions" class="space-y-2"></div>
+            </div>
+
+            <!-- Reel Suggestion -->
+            <div id="reelSection" class="glass-card p-6 hidden">
+                <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full ig-gradient inline-block"></span>
+                    Reel Conversion Tip
+                </h3>
+                <p id="reelSuggestion" class="text-sm text-zinc-300 leading-relaxed">-</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/5 mt-16">
+        <div class="max-w-6xl mx-auto px-6 py-6 text-center text-xs text-zinc-600">
+            BoostAgent &mdash; AI-Powered Instagram Growth Tool &mdash; Not affiliated with Instagram/Meta
+        </div>
+    </footer>
+
+    <script>
+    let hashtagData = {};
+    let currentTab = 'recommended';
+
+    // Set day label
+    const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const now = new Date();
+    document.getElementById('dayLabel').textContent = days[now.getDay()] + ', ' + now.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+
+    // Drag & drop
+    const dropZone = document.getElementById('dropZone');
+    const imageInput = document.getElementById('imageInput');
+    const fileName = document.getElementById('fileName');
+
+    dropZone.addEventListener('click', () => imageInput.click());
+    dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+    dropZone.addEventListener('drop', e => {
+        e.preventDefault();
+        dropZone.classList.remove('drag-over');
+        if (e.dataTransfer.files.length) {
+            imageInput.files = e.dataTransfer.files;
+            fileName.textContent = e.dataTransfer.files[0].name;
+            fileName.classList.remove('hidden');
+        }
+    });
+    imageInput.addEventListener('change', () => {
+        if (imageInput.files.length) {
+            fileName.textContent = imageInput.files[0].name;
+            fileName.classList.remove('hidden');
+        }
+    });
+
+    // Form submit
+    document.getElementById('analyzeForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const form = new FormData(e.target);
+
+        document.getElementById('results').classList.add('hidden');
+        document.getElementById('errorState').classList.add('hidden');
+        document.getElementById('loadingState').classList.remove('hidden');
+
+        const btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        btn.textContent = 'Analyzing...';
+
+        const steps = [
+            'Extracting post data...',
+            'Analyzing content with AI...',
+            'Generating optimized hashtags...',
+            'Building boost strategy...',
+        ];
+        let step = 0;
+        const loadingText = document.getElementById('loadingText');
+        const interval = setInterval(() => {
+            step = Math.min(step + 1, steps.length - 1);
+            loadingText.textContent = steps[step];
+        }, 3000);
+
+        try {
+            const resp = await fetch('/analyze', { method: 'POST', body: form });
+            const data = await resp.json();
+
+            clearInterval(interval);
+            document.getElementById('loadingState').classList.add('hidden');
+            btn.disabled = false;
+            btn.textContent = 'Analyze';
+
+            if (!resp.ok) {
+                document.getElementById('errorMsg').textContent = data.error || 'Something went wrong.';
+                document.getElementById('errorState').classList.remove('hidden');
+                return;
+            }
+
+            renderResults(data);
+        } catch (err) {
+            clearInterval(interval);
+            document.getElementById('loadingState').classList.add('hidden');
+            btn.disabled = false;
+            btn.textContent = 'Analyze';
+            document.getElementById('errorMsg').textContent = 'Network error: ' + err.message;
+            document.getElementById('errorState').classList.remove('hidden');
+        }
+    });
+
+    function renderResults(data) {
+        const r = document.getElementById('results');
+        r.classList.remove('hidden');
+        r.classList.remove('fade-in');
+        void r.offsetWidth;
+        r.classList.add('fade-in');
+
+        // Post info
+        const post = data.post;
+        const bar = document.getElementById('postInfoBar');
+        if (post.username) {
+            bar.classList.remove('hidden');
+            document.getElementById('resUsername').textContent = '@' + post.username;
+            document.getElementById('resPostType').textContent = post.post_type;
+            document.getElementById('resLikes').textContent = post.likes?.toLocaleString() || '-';
+            document.getElementById('resComments').textContent = post.comments?.toLocaleString() || '-';
+        } else {
+            bar.classList.add('hidden');
+        }
+
+        // Analysis
+        const a = data.analysis;
+        document.getElementById('resCategory').textContent = a.content_category || '-';
+        document.getElementById('resMood').textContent = a.mood || '-';
+        document.getElementById('resAudience').textContent = a.target_audience || '-';
+        document.getElementById('resThemes').textContent = (a.themes || []).join(', ') || '-';
+        const ep = a.engagement_potential;
+        document.getElementById('resPotential').textContent = typeof ep === 'string' ? ep : (ep?.level || '-');
+        const potentialEl = document.getElementById('resPotential');
+        potentialEl.className = 'font-semibold';
+        if (typeof ep === 'string') {
+            if (ep === 'high' || ep === 'viral') potentialEl.classList.add('text-emerald-400');
+            else if (ep === 'medium') potentialEl.classList.add('text-yellow-400');
+            else potentialEl.classList.add('text-zinc-400');
+        }
+
+        // Hashtags
+        const h = data.hashtags;
+        hashtagData = {
+            recommended: h.recommended_set || [],
+            reach: h.maximum_reach || [],
+            niche: h.niche_targeted || [],
+            growth: h.low_competition || [],
+            avoid: h.avoid_hashtags || [],
+        };
+        renderHashtags('recommended');
+
+        if (hashtagData.avoid.length) {
+            document.getElementById('avoidSection').classList.remove('hidden');
+            document.getElementById('avoidHashtags').innerHTML = hashtagData.avoid.map(t =>
+                `<span class="hashtag-pill text-red-400 border-red-400/30">${esc(t)}</span>`
+            ).join('');
+        } else {
+            document.getElementById('avoidSection').classList.add('hidden');
+        }
+
+        // Boost strategy
+        const b = data.boost_strategy;
+        document.getElementById('dayBadge').textContent = data.day_of_week || '';
+
+        renderList('bestTimes', b.best_posting_times, 'clock');
+        renderList('engagementHooks', b.engagement_hooks, 'bolt');
+        renderList('contentTips', b.content_tips, 'star');
+        renderList('followUpIdeas', b.follow_up_ideas, 'idea');
+        renderList('communityActions', b.community_actions, 'users');
+
+        document.getElementById('captionRewrite').textContent = b.caption_rewrite || '-';
+        document.getElementById('firstComment').textContent = b.first_comment || '-';
+
+        if (b.reel_suggestion) {
+            document.getElementById('reelSection').classList.remove('hidden');
+            document.getElementById('reelSuggestion').textContent = b.reel_suggestion;
+        } else {
+            document.getElementById('reelSection').classList.add('hidden');
+        }
+    }
+
+    function renderHashtags(tab) {
+        currentTab = tab;
+        const tags = hashtagData[tab] || [];
+        const container = document.getElementById('hashtagContent');
+        container.innerHTML = tags.map(t =>
+            `<span class="hashtag-pill" onclick="this.classList.toggle('selected')">${esc(t)}</span>`
+        ).join('');
+        if (!tags.length) {
+            container.innerHTML = '<p class="text-sm text-zinc-500">No hashtags in this set.</p>';
+        }
+    }
+
+    const tabLabels = {
+        recommended: 'Recommended Set',
+        reach: 'Maximum Reach Set',
+        niche: 'Niche Targeted Set',
+        growth: 'Low Competition Set',
+    };
+
+    function switchTab(el, tab) {
+        document.querySelectorAll('.hashtag-tab').forEach(t => {
+            t.classList.remove('tab-active');
+            t.classList.add('text-zinc-500');
+        });
+        el.classList.add('tab-active');
+        el.classList.remove('text-zinc-500');
+        renderHashtags(tab);
+        document.getElementById('copyHashtagsBtn').textContent = 'Copy ' + (tabLabels[tab] || 'Hashtags');
+    }
+
+    function renderList(containerId, items, icon) {
+        const c = document.getElementById(containerId);
+        if (!items || !items.length) { c.innerHTML = '<p class="text-sm text-zinc-500">-</p>'; return; }
+        const icons = {
+            clock: `<svg class="w-4 h-4 text-purple-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`,
+            bolt: `<svg class="w-4 h-4 text-yellow-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>`,
+            star: `<svg class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>`,
+            idea: `<svg class="w-4 h-4 text-orange-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>`,
+            users: `<svg class="w-4 h-4 text-blue-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>`,
+        };
+        c.innerHTML = items.map(item =>
+            `<div class="flex items-start gap-3 bg-white/5 rounded-xl p-3">
+                ${icons[icon] || ''}
+                <p class="text-sm text-zinc-300">${esc(item)}</p>
+            </div>`
+        ).join('');
+    }
+
+    function copyCurrentHashtags() {
+        const tags = hashtagData[currentTab] || [];
+        if (!tags.length) return;
+        const label = tabLabels[currentTab] || 'Hashtags';
+        navigator.clipboard.writeText(tags.join(' ')).then(() => showToast(label + ' copied!'));
+    }
+
+    function copyText(id) {
+        const text = document.getElementById(id).textContent;
+        if (!text || text === '-') return;
+        navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard!'));
+    }
+
+    function showToast(msg) {
+        const t = document.createElement('div');
+        t.className = 'copy-toast';
+        t.textContent = msg;
+        document.body.appendChild(t);
+        setTimeout(() => t.remove(), 2200);
+    }
+
+    function esc(s) {
+        const d = document.createElement('div');
+        d.textContent = s;
+        return d.innerHTML;
+    }
+
+    // Initialize ads: uncomment when AdSense is configured with a real publisher ID
+    // try {
+    //     document.querySelectorAll('.adsbygoogle').forEach(() => {
+    //         (adsbygoogle = window.adsbygoogle || []).push({});
+    //     });
+    // } catch(e) {}
+    </script>
+</body>
+</html>

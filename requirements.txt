@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+instaloader
+groq
+python-dotenv
+jinja2
+python-multipart
+httpx
