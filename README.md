@@ -1,3 +1,13 @@
+---
+title: Instagram AI Boost Agent
+emoji: 🚀
+colorFrom: purple
+colorTo: orange
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # Instagram AI Boost Agent
 
 AI-powered Instagram post analyzer and organic growth tool. Paste a post URL or @username, and get optimized hashtags, engagement strategies, and content tips powered by Groq AI.
