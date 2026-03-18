@@ -2,7 +2,7 @@
 title: Instagram AI Boost Agent
 emoji: 🚀
 colorFrom: purple
-colorTo: orange
+colorTo: yellow
 sdk: docker
 app_port: 7860
 pinned: false
